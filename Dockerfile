@@ -17,7 +17,9 @@ WORKDIR /app
 COPY Gemfile* ./
 
 RUN gem install bundler:$BUNDLER_VERSION \
-    && bundle install
+    && bundle install && \
+    yarn install && \
+    rails assets:precompile
 
 COPY . .
 
