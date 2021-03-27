@@ -8,6 +8,7 @@ RUN apk add --update --no-cache \
     zlib-dev \
     nodejs \
     yarn \
+    shared-mime-info \
     tzdata
 
 ENV BUNDLER_VERSION=2.1.4
@@ -17,9 +18,8 @@ WORKDIR /app
 COPY Gemfile* ./
 
 RUN gem install bundler:$BUNDLER_VERSION \
-    && bundle install && \
-    yarn install && \
-    rails assets:precompile
+    && bundle install
+RUN yarn install
 
 COPY . .
 
