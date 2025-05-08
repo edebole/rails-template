@@ -10,7 +10,19 @@
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="h-full w-full mx-auto box-border antialiased leading-tight">
+    <% if user_signed_in? %>
+      <%= render "navbar" %>
+      <div class="flex">
+        <%= render "sidebar" %>
+        <main class="w-full flex-col justify-center bg-white p-4">
+          <%= render "flashes" %>
+          <%= yield %>
+        </main>
+      </div>
+    <% else %>
+      <%= yield %>
+    <% end %>
+    <%= render "shared/deploy_info_banner" %>
   </body>
 </html>
