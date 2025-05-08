@@ -1,21 +1,49 @@
-version: "3.5"
+volumes:
+  gems_3.0.3:
+  gems_3.4.3:
+  postgres_data:
 
 services:
-  db:
-    image: postgres:latest
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: "$RUBY_VERSION"
+    ports:
+      - 3000:3000
+    image: "db-ruby:$RUBY_VERSION"
+    volumes:
+      - .:/app:delegated
+      - "gems_3.0.3:/usr/local/bundle/"
+    tty: true
+    stdin_open: true
+    depends_on: &depends_on
+      - db
+  web-next:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: "$RUBY_NEXT_VERSION"
+    ports:
+      - 3001:3000
+    image: "db-ruby:$RUBY_NEXT_VERSION"
     environment:
+      BUNDLE_GEMFILE: Gemfile.next
+    volumes:
+      - gems_3.4.3:/usr/local/bundle/
+      - .:/app:delegated
+    profiles: [next]
+    tty: true
+    stdin_open: true
+    depends_on: *depends_on
+  db:
+    image: postgres:16.2
+    environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - psql_data:/var/lib/postgresql/data
-  app:
-    build: .
-    container_name: app
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-    volumes:
+      - postgres_data:/var/lib/postgresql/data
       - .:/app
-volumes:
-  psql_data:
+    restart: always

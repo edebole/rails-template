@@ -22,7 +22,11 @@ Bundler.require(*Rails.groups)
 module StimulusTailwind
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
+    if NextRails.next?
+      config.load_defaults 7.2
+    else
+      config.load_defaults 6.1
+    end
 
     # Configuration for the application, engines, and railties goes here.
     #

@@ -1,0 +1,35 @@
+#!/bin/bash
+## Load Env vars
+eval "$(awk '/^[A-Z]/ { print "export " $0 }' .env)"
+
+if [ "$1" = "next" ]; then
+  shift
+  web_container="web-next"
+  ruby_version=$RUBY_NEXT_VERSION
+else
+  web_container="web"
+  ruby_version=$RUBY_VERSION
+fi
+
+case "$1" in
+  down)
+    docker compose down
+    ;;
+  up)
+    docker compose up $web_container
+    ;;
+  rails|ruby|bundle|bash|gem|yarn|npm|delayed_job)
+    docker compose run --rm $web_container $@
+    ;;
+  cap)
+    if [ "$web_container" = "web-next" ]; then
+      echo "ERROR: Ruby $ruby_version is not yet configured for deployments"
+      echo "Try again without next argument"
+      exit 1
+    fi
+    docker compose run --rm -e RUBY_VERSION=$ruby_version deploy bin/cap_in_docker $@
+    ;;
+  *)
+    docker compose run --rm $@
+    ;;
+esac
